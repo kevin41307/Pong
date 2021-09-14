@@ -12,14 +12,14 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Wall
+  - Player
+  - Obstacle
+  - Target
+  - Collider
+  - Fluid
+  - BG
+  - GlitchText
   - 
   - 
   - 
@@ -39,6 +39,24 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BG
+    uniqueID: 1697469193
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Env1
+    uniqueID: 312194211
+    locked: 0
+  - name: Env2
+    uniqueID: 115316109
+    locked: 0
+  - name: Character
+    uniqueID: 809044805
+    locked: 0
+  - name: Player
+    uniqueID: 3846830331
+    locked: 0
+  - name: FG
+    uniqueID: 2167134293
     locked: 0
