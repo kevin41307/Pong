@@ -17,7 +17,7 @@ public class PlayerControll : MonoBehaviour
     //events
     public delegate void SizeChanged();
     public event SizeChanged OnSizeChanged;
-    public delegate void TypeChanged();
+    public delegate void TypeChanged(PlaneStyle nextStyle);
     public event TypeChanged OnTypeChanged;
 
     public EnclosureArea2D moveableArea;
@@ -27,7 +27,7 @@ public class PlayerControll : MonoBehaviour
 
     //Player Style
     public PlaneStyle playerStyle;
-    public MoveableDimension moveableDimension;
+    private MoveableDimension moveableDimension;
 
     private float vertical;
     private float m_MoveSpeedDefault = 50f; // OnlyChangeInPlaneStyle
@@ -40,8 +40,9 @@ public class PlayerControll : MonoBehaviour
     private float lastRotation;  
     private const float k_AbsorbRadius = 9f;
     private int getBallsCount;
+    private Vector2 lastValidNextPosition = Vector2.zero;
     private Collider2D[] getBallsResults = new Collider2D[10];
-
+    private Vector2 gravityDirection;
     public bool IsChargeBtn { get; private set; }
     private float baseCounterForce = 400f;
     private float counterForceMultiplier = 1f;
@@ -78,25 +79,28 @@ public class PlayerControll : MonoBehaviour
     }
     private void Reset()
     {
-        transform.rotation = Quaternion.identity;
         transform.position = startPos;
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = 0;
+        ResetTransformExceptPostion();
         counterForceMultiplier = 1f;
 
         SceneLinkedSMB<PlayerControll>.Initialise(animator, this);
     }
 
+    void ResetTransformExceptPostion()
+    {
+        transform.rotation = Quaternion.identity;
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = 0;
+    }
+
     private void OnEnable()
     {
         OnSizeChanged += UpdateBounds;
-        OnTypeChanged += ApplyPlaneStyleParameter;
     }
 
     private void OnDisable()
     {
         OnSizeChanged -= UpdateBounds;
-        OnTypeChanged -= ApplyPlaneStyleParameter;
     }
 
     private void Start()
@@ -111,13 +115,17 @@ public class PlayerControll : MonoBehaviour
         ClippedMoveableArea.UpdateBounds(moveableArea.Center, m_collider.bounds.extents, moveableArea.Extent);
         inputActions = userInput.GetPlayerInputActions();
         //subscribe event
-        GameManager.onResetGame.AddListener(Reset);
-        OnTypeChanged?.Invoke();
+        GameManager.OnResetGame.AddListener(Reset);
+        ApplyPlaneStyleParameter(playerStyle);
+
+
     }
 
-    private void ApplyPlaneStyleParameter()
+    public void ApplyPlaneStyleParameter(PlaneStyle nextStyle)
     {
-        switch (playerStyle)
+        playerStyle = nextStyle;
+        ResetTransformExceptPostion();
+        switch (nextStyle)
         {
             case PlaneStyle.Strike:
                 rb.bodyType = RigidbodyType2D.Kinematic;
@@ -134,6 +142,7 @@ public class PlayerControll : MonoBehaviour
                 inputActions.Player.Fire1.canceled -= OnChargeStateExited;
                 break;
             case PlaneStyle.Balance:
+                transform.position = startPos;
                 rb.bodyType = RigidbodyType2D.Dynamic;
                 rb.simulated = true;
                 rb.mass = 10000f;
@@ -181,6 +190,8 @@ public class PlayerControll : MonoBehaviour
                 Debug.Log("playerStyle is not valid :" + playerStyle);
                 break;
         }
+        OnTypeChanged?.Invoke(playerStyle);
+        OnSizeChanged?.Invoke();
 
     }
     private void OnChargeStateStarted(UnityEngine.InputSystem.InputAction.CallbackContext obj)
@@ -219,51 +230,18 @@ public class PlayerControll : MonoBehaviour
 
         if (!Mathf.Approximately(lastRotation, rb.rotation))
             OnSizeChanged?.Invoke();
-        if (userInput.PositionInput.magnitude != 0 && playerStyle != PlaneStyle.Accuracy) // prevent unity inside bug: pointer position is initial at vector.zero
-        {
+
+        if(playerStyle != PlaneStyle.Accuracy)
             PrepareMove();
+        if ((playerStyle != PlaneStyle.Accuracy) || playerStyle == PlaneStyle.Balance) // prevent unity inside bug: pointer position is initial at vector.zero
+        {
             DoMove();
         }
-         
         lastRotation = rb.rotation;
     }
 
     void UpdateBounds() => ClippedMoveableArea.UpdateBounds(moveableArea.Center, m_collider.bounds.extents, moveableArea.Extent);
 
-    void PrepareMove()
-    {
-        switch (moveableDimension)
-        {
-            case MoveableDimension.Point:
-                break;
-            case MoveableDimension.Line:
-                nextPosition.Set(rb.position.x, Mathf.Clamp(userInput.PositionInput.y, ClippedMoveableArea.Min.y, ClippedMoveableArea.Max.y));
-                break;
-            case MoveableDimension.Face:
-                nextPosition.Set(Mathf.Clamp(userInput.PositionInput.x, ClippedMoveableArea.Min.x, ClippedMoveableArea.Max.x), Mathf.Clamp(userInput.PositionInput.y, ClippedMoveableArea.Min.y, ClippedMoveableArea.Max.y));
-                break;
-            default:
-                nextPosition = rb.position;
-                break;
-        }
-
-        switch (playerStyle)
-        {
-            case PlaneStyle.Strike:
-                break;
-            case PlaneStyle.Balance:
-                ApplyChargeMovement();
-                break;
-            case PlaneStyle.Accuracy:
-                break;
-            case PlaneStyle.Casual:
-                break;
-            default:
-                break;
-        }
-
-    }
-      
     public void Sniper_Start()
     {
         Sniper.OnAimed += Sniper_Aiming;
@@ -283,7 +261,54 @@ public class PlayerControll : MonoBehaviour
         m_collider.enabled = true;
         Sniper.OnAimed -= Sniper_Aiming;
     }
+    void PrepareMove()
+    {
+        switch (moveableDimension)
+        {
+            case MoveableDimension.Point:
+                break;
+            case MoveableDimension.Line:
+                nextPosition.Set(rb.position.x, Mathf.Clamp(userInput.PositionInput.y, ClippedMoveableArea.Min.y, ClippedMoveableArea.Max.y));
+                break;
+            case MoveableDimension.Face:
+                nextPosition.Set(Mathf.Clamp(userInput.PositionInput.x, ClippedMoveableArea.Min.x, ClippedMoveableArea.Max.x), Mathf.Clamp(userInput.PositionInput.y, ClippedMoveableArea.Min.y, ClippedMoveableArea.Max.y));
+                break;
+            default:
+                nextPosition = rb.position;
+                break;
+        }
 
+        FixUnityInputSystemProblem();
+
+        switch (playerStyle)
+        {
+            case PlaneStyle.Strike:
+                break;
+            case PlaneStyle.Balance:
+                ApplyChargeMovement();
+                break;
+            case PlaneStyle.Accuracy:
+                break;
+            case PlaneStyle.Casual:
+                break;
+            default:
+                break;
+        }
+    }
+
+    void FixUnityInputSystemProblem()
+    {
+        if (userInput.PositionInput.magnitude == 0)
+        {
+            if (lastValidNextPosition.magnitude == 0)
+                nextPosition = rb.position; // deal with first case
+            else
+                nextPosition = lastValidNextPosition;
+            //Debug.Log(lastValidNextPosition);
+        }
+        else
+            lastValidNextPosition = nextPosition;
+    }
 
     void SetNextPosition(Vector2 position)
     {
@@ -291,12 +316,12 @@ public class PlayerControll : MonoBehaviour
     }
     void DoMove()
     {
+        //Debug.Log("1." + userInput.PositionInput + "1.nextPosition" + nextPosition);
         Vector2.SmoothDamp(rb.position, nextPosition, ref currentVelocity, Time.deltaTime, m_MoveSpeedDefault, Time.deltaTime);
         rb.velocity = currentVelocity;
     }
     void DoMoveImmediately(Vector3 position)
     {
-
         rb.MovePosition(nextPosition);
     }
 
@@ -328,6 +353,11 @@ public class PlayerControll : MonoBehaviour
     void GetBalls()
     {
         getBallsCount = Physics2D.OverlapCircleNonAlloc(rb.position, k_AbsorbRadius, getBallsResults, 1 << LayerMask.NameToLayer("Collider"));
+        for (int i = 0; i < getBallsCount; i++)
+        {
+            if (getBallsResults[i].CompareTag("ball") == false) continue;
+            GravityEffectManager.Instance.AssignRing(getBallsResults[i].transform);
+        }
     }
 
     void DoAbsortForce()
@@ -337,7 +367,7 @@ public class PlayerControll : MonoBehaviour
             for (int i = 0; i < getBallsCount; i++)
             {
                 if (getBallsResults[i].CompareTag("ball") == false) continue;
-                Vector2 gravityDirection = rb.position - (Vector2)getBallsResults[i].transform.position;
+                gravityDirection = rb.position - (Vector2)getBallsResults[i].transform.position;
                 getBallsResults[i].attachedRigidbody.velocity += gravityDirection.normalized * 9.81f * Mathf.Clamp(gravityDirection.magnitude * gravityDirection.magnitude * .15f, 0, 10) * Time.deltaTime;
 
             }
@@ -349,6 +379,7 @@ public class PlayerControll : MonoBehaviour
         for (int i = 0; i < getBallsCount; i++)
         {
             if (getBallsResults[i].CompareTag("ball") == false) continue;
+            //gravityRings[i].pool.Free(gravityRings[i]);
             
             Vector2 direction = (Vector2)getBallsResults[i].transform.position - rb.position;
             if (direction.magnitude > k_AbsorbRadius) continue;
@@ -380,7 +411,7 @@ public class PlayerControll : MonoBehaviour
             chargePower = 0;
         }
     }
-    public void ApplyChargeMovement()
+    private void ApplyChargeMovement()
     {
         if (IsChargeBtn)
         {

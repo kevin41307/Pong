@@ -24,11 +24,13 @@ public class RangeWeapon : MonoBehaviour
 
     private void Update()
     {
+#if UNITY_EDITOR
         if(Input.GetKeyDown(KeyCode.A))
         {
             Attack(new Vector3(0, 0, 0));
             //Debug.Log("aa");
         }
+#endif
     }
 
     void Attack(Vector3 target)

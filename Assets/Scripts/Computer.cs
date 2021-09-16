@@ -23,7 +23,7 @@ public class Computer : MonoBehaviour
     private void Start()
     {
         startPos = transform.position;
-        GameManager.onResetGame.AddListener(Reset);
+        GameManager.OnResetGame.AddListener(Reset);
     }
 
     // Update is called once per frame

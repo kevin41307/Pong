@@ -293,17 +293,6 @@
                 },
                 {
                     "name": "",
-                    "id": "d064bc68-8f6b-4ac4-9cae-f99a50715cce",
-                    "path": "<DualShockGamepad>/rightShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Fire1",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "0189e8ee-5674-438e-b9a6-b6d7e439fc74",
                     "path": "<Keyboard>/space",
                     "interactions": "",
@@ -327,7 +316,7 @@
                 {
                     "name": "",
                     "id": "c4cc3ca0-2d29-4ae2-9e65-081235ebf170",
-                    "path": "<Touchscreen>/touch0/press",
+                    "path": "<Touchscreen>/primaryTouch/press",
                     "interactions": "",
                     "processors": "",
                     "groups": "Touch",

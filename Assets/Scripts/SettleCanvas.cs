@@ -11,9 +11,9 @@ public class SettleCanvas : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GameManager.onPressAnyKeyToContinue.AddListener(HideMsg);
-        Borderline.onComputerGoal.AddListener(() => { ShowMsg("Computer wins!"); });
-        Borderline.onPlayerGoal.AddListener(() => { ShowMsg("Player wins!"); });
+        GameManager.OnPressAnyKeyToContinue.AddListener(HideMsg);
+        Borderline.OnComputerGoaled += () => { ShowMsg("Computer wins!"); };
+        Borderline.OnPlayerGoaled += () => { ShowMsg("Player wins!"); };
 
     }
 

@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/PlayerInputActions.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/PlayerInputActions 1.inputactions'
 
 using System;
 using System.Collections;
@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 
-public class @PlayerInputActions : IInputActionCollection, IDisposable
+public class @PlayerInputActions1 : IInputActionCollection, IDisposable
 {
     public InputActionAsset asset { get; }
-    public @PlayerInputActions()
+    public @PlayerInputActions1()
     {
         asset = InputActionAsset.FromJson(@"{
-    ""name"": ""PlayerInputActions"",
+    ""name"": ""PlayerInputActions 1"",
     ""maps"": [
         {
             ""name"": ""Player"",
@@ -306,17 +306,6 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""d064bc68-8f6b-4ac4-9cae-f99a50715cce"",
-                    ""path"": ""<DualShockGamepad>/rightShoulder"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""Fire1"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""0189e8ee-5674-438e-b9a6-b6d7e439fc74"",
                     ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
@@ -340,7 +329,7 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""c4cc3ca0-2d29-4ae2-9e65-081235ebf170"",
-                    ""path"": ""<Touchscreen>/touch0/press"",
+                    ""path"": ""<Touchscreen>/primaryTouch/press"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Touch"",
@@ -1045,8 +1034,8 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_SencondaryFingerPosition;
     public struct PlayerActions
     {
-        private @PlayerInputActions m_Wrapper;
-        public PlayerActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+        private @PlayerInputActions1 m_Wrapper;
+        public PlayerActions(@PlayerInputActions1 wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @Look => m_Wrapper.m_Player_Look;
         public InputAction @Fire1 => m_Wrapper.m_Player_Fire1;
@@ -1136,8 +1125,8 @@ public class @PlayerInputActions : IInputActionCollection, IDisposable
     private readonly InputAction m_UI_TrackedDeviceOrientation;
     public struct UIActions
     {
-        private @PlayerInputActions m_Wrapper;
-        public UIActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+        private @PlayerInputActions1 m_Wrapper;
+        public UIActions(@PlayerInputActions1 wrapper) { m_Wrapper = wrapper; }
         public InputAction @Navigate => m_Wrapper.m_UI_Navigate;
         public InputAction @Submit => m_Wrapper.m_UI_Submit;
         public InputAction @Cancel => m_Wrapper.m_UI_Cancel;

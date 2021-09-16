@@ -3,18 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestGeneric<T> where T : MonoBehaviour, IVolatilize
+public class TestGeneric<T> where T : MonoBehaviour
 {
 
 }
 
-public interface Generic2<T>  where T : MonoBehaviour, IVolatilize
+public class A : MonoBehaviour
+{
+
+}
+
+public class B : A
+{
+
+}
+
+
+public interface IGeneric2<T>  where T : MonoBehaviour, IVolatilize
 {
     TestGeneric<T> Start { get; set; }
 
 }
 
-public interface Combibe<T> where T : MonoBehaviour, IVolatilize
+public interface ICombibe<T> where T : MonoBehaviour, IVolatilize
 {
 
 }

@@ -6,32 +6,54 @@ using UnityEngine.Events;
 
 public class Borderline : MonoBehaviour
 {
-    public static UnityEvent onPlayerGoal = new UnityEvent();
-    public static UnityEvent onComputerGoal = new UnityEvent();
+    public static event System.Action OnPlayerGoaled;
+    public static event System.Action OnComputerGoaled;
 
     public bool isPlayerBorder;
+    public static void DecideWinner(Winner who)
+    {
+        switch (who)
+        {
+            case Winner.Player:
+                OnPlayerGoaled?.Invoke();
+                break;
+            case Winner.Computer:
+                OnComputerGoaled?.Invoke();
+                break;
+            default:
+                OnPlayerGoaled?.Invoke();
+                break;
+        }
+    }
 
-    
+    private void OnDestroy()
+    {
+        OnPlayerGoaled = null;
+        OnComputerGoaled = null;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("ball"))
         {
             if (isPlayerBorder)
             {
-                if (onComputerGoal != null)
-                    onComputerGoal.Invoke();
+                if (OnComputerGoaled != null)
+                    OnComputerGoaled.Invoke();
             }
             else
             {
-                if (onPlayerGoal != null)
-                    onPlayerGoal.Invoke();
+                if (OnPlayerGoaled != null)
+                    OnPlayerGoaled.Invoke();
             }
 
         }
     }
 
+}
 
-
-
-
+public enum Winner
+{
+    Player,
+    Computer
 }

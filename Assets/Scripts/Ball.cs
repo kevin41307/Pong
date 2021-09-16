@@ -17,6 +17,7 @@ public class Ball : MonoBehaviour
     private float dot;
     private float ballStopTimer = 5f;
     private float sinceServeTimer = 0f;
+    private float boundCheckTimer;
     private static readonly float m_MaxDistance = 100f;
     private Coroutine ServeCoroutine;
 
@@ -28,8 +29,6 @@ public class Ball : MonoBehaviour
     public Gradient overSpeedGradient;
 
     //prevent ball pass through bound but not detected.
-    Coroutine RestrictMaxBoundCoroutine;
-    WaitForSeconds restrictMaxBoundWaitForSeconds;
     const float k_restrictMaxBoundTimer = 1f;
 
     // Parameter
@@ -52,9 +51,8 @@ public class Ball : MonoBehaviour
         RigidBody2D.angularVelocity = 0;
         ballStopTimer = 5f;
         sinceServeTimer = 0f;
+        boundCheckTimer = 0f;
         if (ServeCoroutine != null) StopCoroutine(ServeCoroutine);
-        if (RestrictMaxBoundCoroutine != null) StopCoroutine(RestrictMaxBoundCoroutine);
-        RestrictMaxBoundCoroutine = StartCoroutine(StartRestrictMaxBound());
         ServeCoroutine = StartCoroutine(Serve());
 
     }
@@ -63,14 +61,14 @@ public class Ball : MonoBehaviour
     {
         startPos = transform.position;
         StartCoroutine(Serve());
-        restrictMaxBoundWaitForSeconds = new WaitForSeconds(k_restrictMaxBoundTimer);
-        RestrictMaxBoundCoroutine = StartCoroutine(StartRestrictMaxBound());
         //subscribe event
-        GameManager.onResetGame.RemoveListener(Reset);
-        GameManager.onResetGame.AddListener(Reset);
+        GameManager.OnResetGame.RemoveListener(Reset);
+        GameManager.OnResetGame.AddListener(Reset);
         SceneLinkedSMB<Ball>.Initialise(animator, this);
         trailGradient = trailRenderer.colorGradient;
-        
+        boundCheckTimer = 0f;
+
+
     }
 
     private void FixedUpdate()
@@ -81,7 +79,8 @@ public class Ball : MonoBehaviour
     
     void LateUpdate()
     {
-        sinceServeTimer += Time.deltaTime;
+
+        RestrictMaxBound();
 #if UNITY_EDITOR
         //Debug.Log(rb.velocity.magnitude);
 #endif
@@ -109,18 +108,11 @@ public class Ball : MonoBehaviour
             {
                 if (transform.position.x > 0f)
                 {
-                    if (Borderline.onPlayerGoal != null)
-                    {
-                        Borderline.onPlayerGoal.Invoke();
-                    }
+                    Borderline.DecideWinner(Winner.Player);
                 }
                 else
                 {
-                    if (Borderline.onComputerGoal != null)
-                    {
-                        Borderline.onComputerGoal.Invoke();
-                    }
-
+                    Borderline.DecideWinner(Winner.Computer);
                 }
             }
         }
@@ -137,30 +129,25 @@ public class Ball : MonoBehaviour
     }
 
 
-    IEnumerator StartRestrictMaxBound()
+    public void RestrictMaxBound()
     {
-        while (sinceServeTimer < 1000f)
+        boundCheckTimer += Time.deltaTime;
+
+        if( boundCheckTimer > k_restrictMaxBoundTimer)
         {
             directionToZero = (RigidBody2D.position - Vector2.zero).magnitude;
             if (directionToZero * directionToZero > m_MaxDistance * m_MaxDistance)
             {
                 if(transform.position.x >= 0)
                 {
-                    if(Borderline.onPlayerGoal != null)
-                    {
-                        Borderline.onPlayerGoal.Invoke();
-                    }
+                    Borderline.DecideWinner(Winner.Player);
                 }
                 else
                 {
-                    if (Borderline.onComputerGoal != null)
-                    {
-                        Borderline.onComputerGoal.Invoke();
-                    }
+                    Borderline.DecideWinner(Winner.Computer);
                 }
-                break;
             }
-            yield return restrictMaxBoundWaitForSeconds;
+            boundCheckTimer = 0f;
         }
     }
 
@@ -170,7 +157,7 @@ public class Ball : MonoBehaviour
         {
             if (trailRenderer.colorGradient != overSpeedGradient)
                 trailRenderer.colorGradient = overSpeedGradient;
-            RigidBody2D.drag = (RigidBody2D.velocity.magnitude - m_NormalBallVelocity) * 0.03f + 0.3f;
+            RigidBody2D.drag = (RigidBody2D.velocity.magnitude - m_NormalBallVelocity) * 0.05f + 0.3f;
         }
         else if(RigidBody2D.velocity.magnitude > 23f)
         {

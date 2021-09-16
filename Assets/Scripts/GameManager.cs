@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviourSingletonPersistent<GameManager>
 {
-
+    /*
     private static GameManager instance;
     public static GameManager Instance
     {
@@ -16,9 +16,9 @@ public class GameManager : MonoBehaviour
             return instance;
         }
     }
-
-    public static UnityEvent onPressAnyKeyToContinue = new UnityEvent();
-    public static UnityEvent onResetGame = new UnityEvent();
+    */
+    public static UnityEvent OnPressAnyKeyToContinue = new UnityEvent();
+    public static UnityEvent OnResetGame = new UnityEvent();
 
     bool isListenAnyKeyDown = false;
 
@@ -26,16 +26,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        Borderline.onPlayerGoal.AddListener(() =>
-        {
-            GamePause();
-            PressAnyKeyToContinue();
-        });
-        Borderline.onComputerGoal.AddListener(() =>
-        {
-            GamePause();
-            PressAnyKeyToContinue();
-        });
+        Borderline.OnPlayerGoaled += EndGameType1;
+        Borderline.OnComputerGoaled += EndGameType1;
 
 #if UNITY_ANDROID
         virtualJoystickCanvas.SetActive(true);
@@ -47,18 +39,35 @@ public class GameManager : MonoBehaviour
         if (isListenAnyKeyDown)
             PressAnyKeyToContinue();
     }
-    void GamePause()
+    void GamePauseAndListenAnyKey()
     {
         Time.timeScale = 0f;
         isListenAnyKeyDown = true;
+    }
+    
+    void EndGameType1()
+    {
+        GamePauseAndListenAnyKey();
+        PressAnyKeyToContinue();
+    }
+
+
+    public void GamePause()
+    {
+        Time.timeScale = 0f;
+    }
+
+    public void GameResume()
+    {
+        Time.timeScale = 1f;
     }
 
     void PressAnyKeyToContinue()
     {
         if (Input.anyKeyDown)
         {
-            if (onPressAnyKeyToContinue != null)
-                onPressAnyKeyToContinue.Invoke();
+            if (OnPressAnyKeyToContinue != null)
+                OnPressAnyKeyToContinue.Invoke();
             isListenAnyKeyDown = false;
             ResetGame();
         }
@@ -67,9 +76,9 @@ public class GameManager : MonoBehaviour
     public void ResetGame()
     {
         Time.timeScale = 1f;
-        if(onResetGame != null)
+        if(OnResetGame != null)
         {
-            onResetGame.Invoke();
+            OnResetGame.Invoke();
         }
     }
 

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[DefaultExecutionOrder(-1)]
-public class UserInput : MonoBehaviour
+[DefaultExecutionOrder(-10)]
+public class UserInput : MonoBehaviourSingleton<UserInput>
 {
     public delegate void StartTouch(Vector2 position, float time);
     public event StartTouch OnStartTouch;
     public delegate void EndTouch(Vector2 position, float time);
     public event EndTouch OnEndTouch;
-
 
     Camera mainCamera;
     public Transform cube;
@@ -21,13 +20,19 @@ public class UserInput : MonoBehaviour
 
     private Vector2 inputVector;
     private Vector2 pointerVector;
+    private Vector2 secondPointVector;
 
     protected Vector2 m_Movement;
-    protected Vector3 m_PointerWorldPosition;
+    protected Vector2 m_PointerWorldPosition;
+    protected Vector2 m_SecondPointerWorldPosition;
+
+    protected bool m_PrimaryFinger;
+    protected bool m_SecondFinger;
     protected bool m_Jump;
     protected bool m_Fire1;
     protected bool m_Pause;
-    PlayerInputActions inputActions;
+    [HideInInspector]
+    public PlayerInputActions inputActions;
 
     [SerializeField]
     private bool m_useInputSystem;
@@ -60,6 +65,16 @@ public class UserInput : MonoBehaviour
             return m_PointerWorldPosition;
         }
     }
+    public Vector3 SecondPositionInput
+    {
+        get
+        {
+            if (playerControllerInputBlocked || m_ExternalInputBlocked)
+                return Vector2.zero;
+            return m_SecondPointerWorldPosition;
+        }
+    }
+
 
     public bool JumpInput
     {
@@ -79,31 +94,114 @@ public class UserInput : MonoBehaviour
         inputActions.Player.Jump.canceled += Jump_canceled;
 
         inputActions.Player.Fire1.started += Fire1_started;
+        //inputActions.Player.Fire1.performed += Fire1_performed;
+
         inputActions.Player.Fire1.canceled += Fire1_canceled;
 
         inputActions.Player.Move.performed += Move_performed;
         inputActions.Player.Move.canceled += Move_canceled;
 
         inputActions.Player.PrimaryFingerPosition.performed += PrimaryFingerPosition_performed;
+        inputActions.Player.SencondaryFingerPosition.performed += SencondaryFingerPosition_performed;
+        //inputActions.Player.PrimaryTouchContact.started += TouchPress_started;
+        //inputActions.Player.PrimaryTouchContact.canceled += TouchPress_canceled;
+        inputActions.Player.SencondaryTouchContact.started += SencondaryTouchContact_started;
+        inputActions.Player.SencondaryTouchContact.canceled += SencondaryTouchContact_canceled;
+        inputActions.Player.PrimaryTouchContact.started += PrimaryTouchContact_started;
+        inputActions.Player.PrimaryTouchContact.canceled += PrimaryTouchContact_canceled;
 
-        inputActions.Player.PrimaryTouchContact.started += TouchPress_started;
-        inputActions.Player.PrimaryTouchContact.canceled += TouchPress_canceled;
+
         mainCamera = Camera.main;
     }
-    private void PrimaryFingerPosition_performed(InputAction.CallbackContext obj)
-    {     
-        pointerVector = Helpers.ScreenToWorld2D(mainCamera, obj.ReadValue<Vector2>());
-        m_PointerWorldPosition = pointerVector;
-    }
 
+
+    private void PrimaryTouchContact_started(InputAction.CallbackContext obj)
+    {
+        m_PrimaryFinger = true;
+    }
+    private void PrimaryTouchContact_canceled(InputAction.CallbackContext obj)
+    {
+        m_PrimaryFinger = false;
+    }
+    private void SencondaryTouchContact_started(InputAction.CallbackContext obj)
+    {
+        m_SecondFinger = true;
+    }
+    private void SencondaryTouchContact_canceled(InputAction.CallbackContext obj)
+    {
+        m_SecondFinger = false;
+    }
+    private void PrimaryFingerPosition_performed(InputAction.CallbackContext obj)
+    {
+        pointerVector = Helpers.ScreenToWorld2D(mainCamera, obj.ReadValue<Vector2>());
+        if (pointerVector.x > 0) // check first finger position, if it right side dispose it //TODO : try to detect rectransform
+        {
+            pointerVector = Vector2.zero;
+        }
+        m_PointerWorldPosition = pointerVector;
+        #region can run but stupid code
+        /*
+        pointerVector = Helpers.ScreenToWorld2D(mainCamera, obj.ReadValue<Vector2>());
+
+        if (m_SecondFinger == false) // if only one finger and this is primary finger, check 
+        {
+            if (pointerVector.x > 0) // check first finger position, if it right side dispose it //TODO : try to detect rectransform
+            {
+                pointerVector = Vector2.zero;
+            }
+        }
+
+        m_PointerWorldPosition = pointerVector;
+        */
+        #endregion
+    }
+    private void SencondaryFingerPosition_performed(InputAction.CallbackContext obj)
+    {
+        pointerVector = Helpers.ScreenToWorld2D(mainCamera, obj.ReadValue<Vector2>());
+        if (pointerVector.x > 0)
+        {
+            pointerVector = Vector2.zero;
+        }
+        m_PointerWorldPosition = pointerVector;
+
+        #region can run but stupid code
+        /*
+        if (m_PrimaryFinger == true) 
+        {
+            pointerVector = Helpers.ScreenToWorld2D(mainCamera, inputActions.Player.SencondaryFingerPosition.ReadValue<Vector2>());
+            if (pointerVector.x > 0)
+            {
+                pointerVector = Vector2.zero;
+            }
+            m_PointerWorldPosition = pointerVector;
+        }
+        else if (m_PrimaryFinger == false) // if primary finger is leave
+        {
+            pointerVector = Helpers.ScreenToWorld2D(mainCamera, inputActions.Player.SencondaryFingerPosition.ReadValue<Vector2>());
+            if (pointerVector.x > 0)
+            {
+                pointerVector = Vector2.zero;
+            }
+
+            m_PointerWorldPosition = pointerVector;
+        }
+
+        */
+        #endregion
+    }
     private void Fire1_started(InputAction.CallbackContext obj)
     {
         m_Fire1 = true;
+        //Debug.Log("Fire1_started");
     }
-
+    private void Fire1_performed(InputAction.CallbackContext obj)
+    {
+        Debug.Log("Fire1_performed");
+    }
     private void Fire1_canceled(InputAction.CallbackContext obj)
     {
         m_Fire1 = false;
+        //Debug.Log("Fire1_canceled");
     }
 
 
@@ -136,13 +234,13 @@ public class UserInput : MonoBehaviour
     private void TouchPress_started(InputAction.CallbackContext context)
     {
         OnStartTouch?.Invoke(Helpers.ScreenToWorld2D(mainCamera, inputActions.Player.PrimaryFingerPosition.ReadValue<Vector2>()), (float)context.startTime);
-        Debug.Log("Touch started " + inputActions.Player.PrimaryFingerPosition.ReadValue<Vector2>());
+        //Debug.Log("Touch started " + inputActions.Player.PrimaryFingerPosition.ReadValue<Vector2>());
     }
 
     private void TouchPress_canceled(InputAction.CallbackContext context)
     {
         if (OnEndTouch != null) OnEndTouch(Helpers.ScreenToWorld2D(mainCamera, inputActions.Player.PrimaryFingerPosition.ReadValue<Vector2>()), (float)context.startTime);
-        Debug.Log("Touch ended ");
+        //Debug.Log("Touch ended ");
     }
 
     public Vector2 PrimaryPosition()
@@ -164,16 +262,15 @@ public class UserInput : MonoBehaviour
         EnableDisableInputSystem(false);
     }
 
-
-
+    /*
+    private void FixedUpdate()
+    {
+        if (MobileDebug.Instance != null)
+            MobileDebug.Instance.ShowMessage("1.pointerVector:" + pointerVector + " 2.m_PrimaryFinger:" + m_PrimaryFinger + " 3.m_SecondFinger:" + m_SecondFinger + " 5.m_PointerWorldPosition:" + m_PointerWorldPosition);
+    }
+    */
     void Update()
     {
-#if UNITY_EDITOR
-        if(Input.GetKeyDown(KeyCode.Y))
-        {
-            UseInputSystem = !UseInputSystem;
-        }
-#endif
         if(UseInputSystem)
         {
             //Debug.Log(m_Jump);
