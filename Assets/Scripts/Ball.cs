@@ -157,13 +157,13 @@ public class Ball : MonoBehaviour
         {
             if (trailRenderer.colorGradient != overSpeedGradient)
                 trailRenderer.colorGradient = overSpeedGradient;
-            RigidBody2D.drag = (RigidBody2D.velocity.magnitude - m_NormalBallVelocity) * 0.05f + 0.3f;
+            RigidBody2D.drag = (RigidBody2D.velocity.magnitude - m_NormalBallVelocity) * 0.12f + 0.5f;
         }
         else if(RigidBody2D.velocity.magnitude > 23f)
         {
             if(trailRenderer.colorGradient != overSpeedGradient)
                 trailRenderer.colorGradient = overSpeedGradient;
-            RigidBody2D.drag = 0.3f;
+            RigidBody2D.drag = 0.5f;
         }
         else if(RigidBody2D.velocity.magnitude > m_NormalBallVelocity)
         {

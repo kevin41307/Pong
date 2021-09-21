@@ -7,21 +7,25 @@ public class ObjectPooler<T> where T : MonoBehaviour, IPooled<T>
     public T[] instances;
 
     protected Stack<int> m_FreeIdx;
+    public Stack<int> FreeIdx { get => m_FreeIdx; } 
+    private int lastInitIndex = 0;
 
-    public void Initialize(int count, T prefab)
+    public void Initialize(int count, T prefab) // 
     {
         instances = new T[count];
         m_FreeIdx = new Stack<int>(count);
-
-        for (int i = 0; i < count; ++i)
+        
+        for (int i = lastInitIndex; i < lastInitIndex + count; ++i)
         {
             instances[i] = Object.Instantiate(prefab);
             instances[i].gameObject.SetActive(false);
-            instances[i].poolID = i;
+            instances[i].name += " " + i; // invert id sequence +(lastInitIndex + count - 1 - i)
+            instances[i].poolID = i; //invert id sequence lastInitIndex + count - 1 - i
             instances[i].pool = this;
 
             m_FreeIdx.Push(i);
         }
+        lastInitIndex += count;
     }
 
     public T GetNew()
@@ -37,6 +41,24 @@ public class ObjectPooler<T> where T : MonoBehaviour, IPooled<T>
         instances[idx].gameObject.SetActive(true);
         
         return instances[idx];
+    }
+
+    public T[] GetNews(bool active = true)
+    {
+        if (m_FreeIdx.Count <= 0)
+        {
+#if UNITY_EDITOR            
+            Debug.Log("ObjectPool" + typeof(T).Name + " is Empty.");
+#endif
+            return null;
+        }
+        if(active) m_FreeIdx.Clear();
+        for (int i = 0; i < instances.Length; i++)
+        {
+            if (active == false) break;
+            instances[i].gameObject.SetActive(active);
+        }
+        return instances;
     }
 
     public T GetNew(float expiredTime) //TODO: auto extend pool size?
@@ -69,6 +91,15 @@ public class ObjectPooler<T> where T : MonoBehaviour, IPooled<T>
         */
 #endif
     }
+    public void Frees(T[] objs)
+    {
+        for (int i = 0; i < objs.Length; i++)
+        {
+            m_FreeIdx.Push(objs[i].poolID);
+            instances[objs[i].poolID].gameObject.SetActive(false);
+        }
+    }
+
 }
 
 public interface IPooled<T> where T : MonoBehaviour, IPooled<T>
@@ -84,4 +115,9 @@ public interface IVolatilize
     public abstract void GetNew(System.Action giveBackCB);
     public abstract void GiveBack();
     public abstract IEnumerator StartGiveBack(float time);
+}
+
+public class pool2<T> : ObjectPooler<T>  where T : MonoBehaviour, IPooled<T>
+{
+
 }

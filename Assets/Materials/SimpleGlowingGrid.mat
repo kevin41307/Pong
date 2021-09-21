@@ -40,7 +40,7 @@ Material:
     - _OuterSphereRadius: 20
     - _WaveStrengh: 1.7
     m_Colors:
-    - Color_de3729ce085343c59aa2208c6b779ed6: {r: 0.30338225, g: 1.2596959, b: 0.96290886, a: 1}
+    - Color_de3729ce085343c59aa2208c6b779ed6: {r: 0.27342337, g: 1.1353015, b: 0.86782205, a: 1}
     - Vector2_6adad54655ec4749acb499466d7713a2: {r: 0, g: -0.25, b: 0, a: 0}
     - _CenterPosition: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

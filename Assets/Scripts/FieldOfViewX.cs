@@ -5,7 +5,7 @@ using UnityEngine.Jobs;
 using Unity.Jobs;
 using Unity.Collections;
 
-public class FieldOfView : MonoBehaviour
+public class FieldOfViewX : MonoBehaviour
 {
     public float viewRadius;
     [Range(0, 360)]
@@ -28,11 +28,11 @@ public class FieldOfView : MonoBehaviour
 
     private Vector3 targetRotation;
 
-    //PlayerControll player;
+    BalanceTypeController player;
 
     private void Awake()
     {
-        //player = GetComponentInParent<PlayerControll>();
+        player = GetComponentInParent<BalanceTypeController>();
     }
 
     private void Start()
@@ -69,7 +69,7 @@ public class FieldOfView : MonoBehaviour
     }
     private void Update()
     {
-        if (!UserInput.Instance.Fire1Input) return; //Charge button
+        if (!player.IsChargeBtn) return; //Charge button
 
         UpdateOrientation();
         
@@ -77,7 +77,7 @@ public class FieldOfView : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!UserInput.Instance.Fire1Input) return;
+        if (!player.IsChargeBtn) return;
         DrawFieldOfView();
     }
 

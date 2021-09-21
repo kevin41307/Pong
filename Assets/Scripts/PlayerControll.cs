@@ -35,12 +35,12 @@ public class PlayerControll : MonoBehaviour
     private float speedMultiplier = 0.6f;
     private Vector2 startPos;
     private Vector2 nextPosition;
+    private Vector2 lastValidNextPosition = Vector2.zero;
     private float m_scaleY;
     private Vector2 currentVelocity;
     private float lastRotation;  
     private const float k_AbsorbRadius = 9f;
     private int getBallsCount;
-    private Vector2 lastValidNextPosition = Vector2.zero;
     private Collider2D[] getBallsResults = new Collider2D[10];
     private Vector2 gravityDirection;
     public bool IsChargeBtn { get; private set; }
@@ -69,13 +69,11 @@ public class PlayerControll : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        userInput = GetComponent<UserInput>();
+        userInput = UserInput.Instance;
         m_ChargeFullWait = new WaitForSeconds(k_ChargeFullDuration);
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
-        
-
     }
     private void Reset()
     {
@@ -322,9 +320,8 @@ public class PlayerControll : MonoBehaviour
     }
     void DoMoveImmediately(Vector3 position)
     {
-        rb.MovePosition(nextPosition);
+        rb.MovePosition(position);
     }
-
 
     void ApplyCounterForceMultiply()
     {
@@ -446,25 +443,10 @@ public class PlayerControll : MonoBehaviour
         }
     }
 
+    //StateMachine Call Back
     public void EnterIdle()
     {
         animator.ResetTrigger(m_HashChargeFull);
     }
 
-}
-
-public enum PlaneStyle
-{
-    Strike,
-    Balance,
-    Accuracy,
-    Casual
-
-}
-
-public enum MoveableDimension
-{
-    Point,
-    Line,
-    Face
 }

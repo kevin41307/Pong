@@ -47,7 +47,7 @@ public class RangeWeapon : MonoBehaviour
         if(m_LoadedProjectile == null)
         {
             // Says pool is empty
-            m_ProjectilePool.Initialize(5, projectile);
+            m_ProjectilePool.Initialize(5, projectile); 
             m_LoadedProjectile = m_ProjectilePool.GetNew();
         }
         m_LoadedProjectile.transform.SetParent(transform, false);

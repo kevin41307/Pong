@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PauseCanvas : MonoBehaviour
+[DefaultExecutionOrder(-1)]
+public class PauseCanvas : MonoBehaviourSingleton<PauseCanvas>
 {
     public Button pauseButton;
     public GameObject pausePanel;
@@ -12,7 +13,7 @@ public class PauseCanvas : MonoBehaviour
     public Button accuracyTypeButton;
     public Button casualTypeButton;
 
-    public PlayerControll player; //TODO: get play instance from gm etc...
+    public PlayerControl player; //TODO: get play instance from gm etc...
     private bool pausePanelActive;
 
     private void Awake()
@@ -23,30 +24,44 @@ public class PauseCanvas : MonoBehaviour
         balanceTypeButton.onClick.AddListener(BecomeBalanceType);
         accuracyTypeButton.onClick.AddListener(BecomeAccuracyType);
         casualTypeButton.onClick.AddListener(BecomeCasualType);
+        PlayerInstanceManager.Instance.OnInstantiatePlayer += SetCurrentPlayerGameObject;
     }
+    private void Start()
+    {
+    }
+    private void OnDestroy()
+    {
+        if(PlayerInstanceManager.Instance != null)
+            PlayerInstanceManager.Instance.OnInstantiatePlayer -= SetCurrentPlayerGameObject;
+    }
+
+
     void ActivePausePanel(bool _active)
     {
         pausePanel.SetActive(_active);
         pausePanelActive = !pausePanelActive;
 
     }
-
+    public void SetCurrentPlayerGameObject(GameObject go)
+    {
+        player = go.GetComponent<PlayerControl>();
+    }
 
     void BecomeStrikeType()
     {
-        player.ApplyPlaneStyleParameter(PlaneStyle.Strike);
+        PlayerInstanceManager.Instance.NewPlayerAtLastTransform(PlaneStyle.Strike);
     }
 
     void BecomeBalanceType()
     {
-        player.ApplyPlaneStyleParameter(PlaneStyle.Balance);
+        PlayerInstanceManager.Instance.NewPlayerAtLastTransform(PlaneStyle.Balance);
     }
     void BecomeAccuracyType()
     {
-        player.ApplyPlaneStyleParameter(PlaneStyle.Accuracy);
+        PlayerInstanceManager.Instance.NewPlayerAtLastTransform(PlaneStyle.Accuracy);
     }
     void BecomeCasualType()
     {
-        player.ApplyPlaneStyleParameter(PlaneStyle.Casual);
+        PlayerInstanceManager.Instance.NewPlayerAtLastTransform(PlaneStyle.Casual);
     }
 }
