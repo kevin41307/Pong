@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6162931633960389544}
   - component: {fileID: 943888604212618476}
   m_Layer: 0
-  m_Name: RingPS
+  m_Name: ImpactRingPS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

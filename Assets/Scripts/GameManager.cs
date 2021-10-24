@@ -5,18 +5,6 @@ using UnityEngine.Events;
 
 public class GameManager : MonoBehaviourSingletonPersistent<GameManager>
 {
-    /*
-    private static GameManager instance;
-    public static GameManager Instance
-    {
-        get
-        {
-            if (instance == null)
-                instance = FindObjectOfType<GameManager>();
-            return instance;
-        }
-    }
-    */
     public static UnityEvent OnPressAnyKeyToContinue = new UnityEvent();
     public static UnityEvent OnResetGame = new UnityEvent();
 
@@ -26,8 +14,8 @@ public class GameManager : MonoBehaviourSingletonPersistent<GameManager>
 
     private void Start()
     {
-        Borderline.OnPlayerGoaled += EndGameType1;
-        Borderline.OnComputerGoaled += EndGameType1;
+        //Borderline.OnPlayerGoaled += EndGameType1;
+        //Borderline.OnComputerGoaled += EndGameType1;
 
 #if UNITY_ANDROID
         virtualJoystickCanvas.SetActive(true);

@@ -109,7 +109,7 @@ public class Sniper : MonoBehaviour
     {
         Ray ray = mainCamera.ScreenPointToRay(inputActions.Player.PrimaryFingerPosition.ReadValue<Vector2>());
         RaycastHit raycastHit;
-        if (!Physics.Raycast(ray, out raycastHit, 100f, 1 << LayerMask.NameToLayer("Collider"), QueryTriggerInteraction.Collide)) return; // if player dont click obj, do nothing
+        if (!Physics.Raycast(ray, out raycastHit, 100f, 1 << LayerMask.NameToLayer("Ball"), QueryTriggerInteraction.Collide)) return; // if player dont click obj, do nothing
         if (raycastHit.collider != null && player.ClippedMoveableArea.IsContain(ray.origin))
         {
             if(raycastHit.collider.CompareTag("ball"))

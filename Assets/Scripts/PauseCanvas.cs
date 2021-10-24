@@ -42,7 +42,7 @@ public class PauseCanvas : MonoBehaviourSingleton<PauseCanvas>
         pausePanelActive = !pausePanelActive;
 
     }
-    public void SetCurrentPlayerGameObject(GameObject go)
+    public void SetCurrentPlayerGameObject(int id, GameObject go)
     {
         player = go.GetComponent<PlayerControl>();
     }

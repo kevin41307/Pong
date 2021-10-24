@@ -40,10 +40,30 @@ Material:
     - _EdgeVisible: 0
     - _Fade: 0.74
     - _GlowVisible: 0
+    - _y0: 0
+    - _y1: 1
+    - _y2: 2
+    - _y3: 3
+    - _y4: 4
+    - _y5: 5
+    - _y6: 6
+    - _y6_1: 9
+    - _y7: 7
+    - _y8: 8
     m_Colors:
     - _BaseColor: {r: 7.129739, g: 0, b: 0.06573707, a: 1}
     - _Color: {r: 2.241395, g: 0, b: 0.023470419, a: 1}
     - _Color1: {r: 7.129739, g: 0, b: 0.06573707, a: 1}
     - _EdgeColor: {r: 4.237095, g: 4.237095, b: 4.237095, a: 0}
     - _GlowColor: {r: 7.129739, g: 0, b: 0.06573707, a: 1}
+    - _mColor0: {r: 1, g: 0, b: 0, a: 1}
+    - _mColor1: {r: 1, g: 0.54127395, b: 0, a: 0}
+    - _mColor2: {r: 1, g: 0.97307223, b: 0, a: 0}
+    - _mColor3: {r: 0.20719737, g: 1, b: 0, a: 0}
+    - _mColor4: {r: 0, g: 0.68772125, b: 1, a: 0}
+    - _mColor5: {r: 0, g: 0.25335667, b: 1, a: 0}
+    - _mColor6: {r: 0.6880822, g: 0, b: 1, a: 0}
+    - _mColor7: {r: 1, g: 0.54127395, b: 0, a: 0}
+    - _mColor8: {r: 1, g: 0.54127395, b: 0, a: 0}
+    - _mColor9: {r: 1, g: 0.54127395, b: 0, a: 0}
   m_BuildTextureStacks: []

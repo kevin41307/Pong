@@ -13,8 +13,12 @@ public class ScoreBoard : MonoBehaviour
 
     private void Start()
     {
+        /*
         Borderline.OnComputerGoaled += AddComputerScore;
         Borderline.OnPlayerGoaled += AddPlayerScore;
+        */
+        MyGameEventSystem.BallEvents.Player1Goaled.performed += AddPlayerScore;
+        MyGameEventSystem.BallEvents.Player2Goaled.performed += AddComputerScore;
     }
 
     void AddPlayerScore()

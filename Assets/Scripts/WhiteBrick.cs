@@ -4,35 +4,57 @@ using UnityEngine;
 
 public class WhiteBrick : Brick
 {
-    public Sprite broken1;
-    public Sprite broken2;
-    public override void ApplyColorTypeParameter()
+    /*
+    protected override void Awake()
     {
-        durability = 3f;
-        brickType = BrickType.Breakable;
-        BrickColorType = BrickColorType.White;
+        sr = GetComponent<SpriteRenderer>();
+        MigrateMultiplier = 1;
+        material = sr.material;
+        crackLineDecalSystem = new CrackLineDecalSystem(material);
+        sr.material = crackLineDecalSystem.ApplyWhite(0);
     }
 
-    public override void Break()
+    protected override void OnEnable()
     {
-        LetMeMigrate();
+        ApplyColorTypeParameter();
+        sr.material = crackLineDecalSystem.ApplyWhite(0);
+    }
+    */
+    public override void ApplyColorTypeParameter()
+    {
+        Durability = 3f;
+        brickType = BrickType.Breakable;
+        m_BrickColorType = BrickColorType.White;
+    }
+
+    public override void Break(CompensationInfo info) // First call of compensated invocation list
+    {
+        if(info.dontNeedCompensate == false )
+            ItemOnWorldManager.Instance.ItemIncreased(info);
         pool.Free(this);
+        BrickBreaked(info);
+        LetSeatReleased();
+        LetMeMigrate();
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        
-        durability -= 1f;
-        if(durability <= 0f)
+        Durability -= 1f;
+        if(Durability <= 0f)
         {
-            Break();
+            CompensationInfo newInfo = new CompensationInfo { breaker = collision.gameObject.GetComponent<MonoBehaviour>(), brick = this };
+            Break(newInfo);
+
         }
-        else if( durability <= 1)
-        {      
-            sr.sprite = broken2;
+        else if( Durability <= 1)
+        {
+            //sr.sprite = broken2;
+            crackLineDecalSystem.Apply(3);
+
         }
         else
         {
-            sr.sprite = broken1;
+            //sr.sprite = broken1;
+            crackLineDecalSystem.Apply(1);
         }
         
     }

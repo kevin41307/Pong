@@ -9,7 +9,7 @@ public class PlayerInstanceManager : MonoBehaviourSingletonPersistent<PlayerInst
     public delegate void PlaneStyleChange(Player player, PlaneStyle nextStyle);
     public event PlaneStyleChange OnPlaneStyleChange;
     */
-    public event System.Action<GameObject> OnInstantiatePlayer;
+    public event System.Action<int, GameObject> OnInstantiatePlayer;
     public EnclosureArea2D p1MoveableArea;
     public EnclosureArea2D p2MoveableArea; // 2p dont know how to control...
 
@@ -20,14 +20,10 @@ public class PlayerInstanceManager : MonoBehaviourSingletonPersistent<PlayerInst
     public PlayerControl casualInstance;
 
     private Vector3 position;
-    GameObject currentPlayerGameObject = null;
-    GameObject newPlayerGameObject = null;
-    public override void Awake()
-    {
-        base.Awake();
-       
+    [HideInInspector]
+    public GameObject currentPlayerGameObject = null;
+    private GameObject newPlayerGameObject = null;
 
-    }
     private void Start()
     {
         currentPlayerGameObject = NewPlayer(PlaneStyle.Strike);
@@ -36,20 +32,27 @@ public class PlayerInstanceManager : MonoBehaviourSingletonPersistent<PlayerInst
     public GameObject NewPlayer(PlaneStyle planeStyle, bool active = true)
     {
         newPlayerGameObject = Generate(planeStyle);
+        AvatarCard card = new AvatarCard(newPlayerGameObject);
         newPlayerGameObject.SetActive(active);
         currentPlayerGameObject = newPlayerGameObject;
-        OnInstantiatePlayer?.Invoke(currentPlayerGameObject);
+        
+        OnInstantiatePlayer?.Invoke( 1, currentPlayerGameObject);
         return currentPlayerGameObject;
     }
     public GameObject NewPlayerAtLastTransform(PlaneStyle planeStyle, bool active = true)
     {
         newPlayerGameObject = Generate(planeStyle);
+
+        AvatarCard card = AvatarCard.FindSpecifiedCard(currentPlayerGameObject);
+        if(card != null)
+            card.avatar = newPlayerGameObject;
+
         CopyTransform();
         currentPlayerGameObject.SetActive(false);
         Destroy(currentPlayerGameObject, Time.deltaTime); // destroy at next frame.
         newPlayerGameObject.SetActive(active);
         currentPlayerGameObject = newPlayerGameObject;
-        OnInstantiatePlayer?.Invoke(currentPlayerGameObject);
+        OnInstantiatePlayer?.Invoke(2, currentPlayerGameObject);
         return currentPlayerGameObject;
     }
     private GameObject Generate(PlaneStyle planeStyle)
@@ -70,7 +73,7 @@ public class PlayerInstanceManager : MonoBehaviourSingletonPersistent<PlayerInst
                 newPlayerGo = Instantiate(casualInstance).gameObject;
                 break;
             default:
-                Debug.Log("In PlayerInstanceManager Generate dont has this type" + planeStyle);
+                Debug.Log("PlayerInstanceManager:Generate() dont has this type" + planeStyle);
                 break;
         }
         return newPlayerGo;
@@ -87,5 +90,60 @@ public class PlayerInstanceManager : MonoBehaviourSingletonPersistent<PlayerInst
     }
 
 
+}
 
+public class AvatarCard
+{
+    public GameObject avatar;
+    public string avatarName;
+    public int avatarID;
+
+    private string avatarDefaultName = "Player";
+    private static int avatarIDCount = 1;
+    private static List<AvatarCard> avatarCards = new List<AvatarCard>();
+    public AvatarCard(GameObject _avatar, string _avatarName = "Player")
+    {
+        avatar = _avatar;
+        avatarName = _avatarName;
+        avatarID = avatarIDCount++;
+        avatarCards.Add(this);
+        WalkCards();
+    }
+
+    public static void WalkCards()
+    {
+        for (int i = 0; i < avatarCards.Count; i++)
+        {
+            Debug.Log(avatarCards[i].avatarName + " " + avatarCards[i].avatarID + " " + avatarCards[i].avatar);
+        }
+    }
+    public static AvatarCard FindSpecifiedCard(GameObject target)
+    {
+        for (int i = 0; i < avatarCards.Count; i++)
+        {
+            if (avatarCards[i].avatar == target)
+            {
+                return avatarCards[i];
+            }
+        }
+#if UNITY_EDITOR
+        Debug.Log("Cannot find specified card with " + target + ".");
+#endif
+        return null;
+    }
+
+    public static AvatarCard FindSpecifiedCard(int avatarID)
+    {
+        for (int i = 0; i < avatarCards.Count; i++)
+        {
+            if(avatarCards[i].avatarID == avatarID)
+            {
+                return avatarCards[i];
+            }
+        }
+#if UNITY_EDITOR
+        Debug.Log("Cannot find specified card with " + avatarID + ".");
+#endif
+        return null;
+    }
 }

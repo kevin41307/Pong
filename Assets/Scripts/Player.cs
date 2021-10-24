@@ -39,7 +39,8 @@ public enum PlaneStyle
     Strike,
     Balance,
     Accuracy,
-    Casual
+    Casual,
+    Computer
 
 }
 

@@ -1,59 +1,23 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
-public class Borderline : MonoBehaviour
+
+[DefaultExecutionOrder(2)]
+public class Borderline : MonoBehaviour //Control the start invocation list of endGameType1 
 {
-    public static event System.Action OnPlayerGoaled;
-    public static event System.Action OnComputerGoaled;
-
-    public bool isPlayerBorder;
-    public static void DecideWinner(Winner who)
+    public bool isPlayer1Border;
+    public GameObject owner { private set; get; }
+    private void Start()
     {
-        switch (who)
+        if(isPlayer1Border)
         {
-            case Winner.Player:
-                OnPlayerGoaled?.Invoke();
-                break;
-            case Winner.Computer:
-                OnComputerGoaled?.Invoke();
-                break;
-            default:
-                OnPlayerGoaled?.Invoke();
-                break;
+            AvatarCard card = AvatarCard.FindSpecifiedCard(1);
+            owner = card.avatar;
+        }
+        else
+        {
+            AvatarCard card = AvatarCard.FindSpecifiedCard(2);
+            owner = card.avatar;
         }
     }
-
-    private void OnDestroy()
-    {
-        OnPlayerGoaled = null;
-        OnComputerGoaled = null;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("ball"))
-        {
-            if (isPlayerBorder)
-            {
-                if (OnComputerGoaled != null)
-                    OnComputerGoaled.Invoke();
-            }
-            else
-            {
-                if (OnPlayerGoaled != null)
-                    OnPlayerGoaled.Invoke();
-            }
-
-        }
-    }
-
-}
-
-public enum Winner
-{
-    Player,
-    Computer
 }

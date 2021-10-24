@@ -8,12 +8,12 @@ public class ImpactCircleRender : MonoBehaviour
     Material material;
     Animator animator;
     readonly int m_ImpactCircle = Animator.StringToHash("ImpactCircle");
-    private void Start()
+    private void Awake()
     {
         MeshRenderer mesh = GetComponent<MeshRenderer>();
         animator = GetComponent<Animator>();
         material = mesh.material;
-        Wall.onBallCollisionEnter.AddListener(PlayIt);
+        Wall.OnBallHitted.AddListener(PlayIt);
     }
 
     public void PlayIt(Vector3 pos)
@@ -24,7 +24,7 @@ public class ImpactCircleRender : MonoBehaviour
 
     private void OnDisable()
     {
-        Wall.onBallCollisionEnter.RemoveListener(PlayIt);
+        Wall.OnBallHitted.RemoveListener(PlayIt);
     }
 
 }

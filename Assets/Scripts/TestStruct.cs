@@ -19,6 +19,10 @@ public class TestStruct : MonoBehaviour
     A a = new A { x = 1, y = 2 };
     B b = new B { w = -1, z = -2 };
     B[] bArray = new B[10];
+    A[] aArray = new A[2];
+    A[] aArray2 = new A[2];
+    A aCopy;
+
     private void Start()
     {
         //Debug.Log(a.x + " / " + a.y);
@@ -29,6 +33,29 @@ public class TestStruct : MonoBehaviour
         bArray[0] = new B();
         //Debug.Log(bArray[0].w + " " + bArray[0].z);
         //Debug.Log(a.x + " / " + a.y);
+
+        aArray[0].x = -1;
+        aArray[0].y = -1;
+
+        aArray2 = aArray; // copy address
+        aArray2[0] = aArray[0]; // copy data
+
+        foreach (var item in aArray2)
+        {
+            Debug.Log(item.x);
+            Debug.Log(item.y);
+        }
+        aArray2[0].x = -99;
+        foreach (var item in aArray)
+        {
+            Debug.Log(item.x);
+            Debug.Log(item.y);
+        }
+        aCopy = a; // copy data
+        aCopy.x = -999;
+        Debug.Log(a.x);
+        Debug.Log(a.y);
+
     }
     void ChangeB( B _b)
     {

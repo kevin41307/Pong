@@ -349,7 +349,7 @@ public class PlayerControll : MonoBehaviour
 
     void GetBalls()
     {
-        getBallsCount = Physics2D.OverlapCircleNonAlloc(rb.position, k_AbsorbRadius, getBallsResults, 1 << LayerMask.NameToLayer("Collider"));
+        getBallsCount = Physics2D.OverlapCircleNonAlloc(rb.position, k_AbsorbRadius, getBallsResults, 1 << LayerMask.NameToLayer("Ball"));
         for (int i = 0; i < getBallsCount; i++)
         {
             if (getBallsResults[i].CompareTag("ball") == false) continue;

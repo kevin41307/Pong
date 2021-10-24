@@ -61,8 +61,9 @@ public class BalanceTypeController : PlayerControl
         inputActions.Player.Fire1.canceled += OnChargeStateExited;
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         inputActions.Player.Fire1.started -= OnChargeStateStarted; // prevent multiple subscibe
         inputActions.Player.Fire1.canceled -= OnChargeStateExited;
     }
@@ -96,7 +97,7 @@ public class BalanceTypeController : PlayerControl
     void GetBalls()
     {
         if (rb == null) return;
-        getBallsCount = Physics2D.OverlapCircleNonAlloc(rb.position, k_AbsorbRadius, getBallsResults, 1 << LayerMask.NameToLayer("Collider"));
+        getBallsCount = Physics2D.OverlapCircleNonAlloc(rb.position, k_AbsorbRadius, getBallsResults, 1 << LayerMask.NameToLayer("Ball"));
         for (int i = 0; i < getBallsCount; i++)
         {
             if (getBallsResults[i].CompareTag("ball") == false) continue;

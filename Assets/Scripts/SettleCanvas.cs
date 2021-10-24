@@ -12,8 +12,8 @@ public class SettleCanvas : MonoBehaviour
     void Start()
     {
         GameManager.OnPressAnyKeyToContinue.AddListener(HideMsg);
-        Borderline.OnComputerGoaled += () => { ShowMsg("Computer wins!"); };
-        Borderline.OnPlayerGoaled += () => { ShowMsg("Player wins!"); };
+        //Borderline.OnComputerGoaled += () => { ShowMsg("Computer wins!"); };
+        //Borderline.OnPlayerGoaled += () => { ShowMsg("Player wins!"); };
 
     }
 

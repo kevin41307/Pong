@@ -13,7 +13,12 @@ public abstract class PlayerControl : Player
     protected SpriteRenderer sr;
     protected PlayerInputActions inputActions;
     public EnclosureArea2D moveableArea;
-    public EnclosureArea2D ClippedMoveableArea { private set; get; }
+    public EnclosureArea2D ClippedMoveableArea { protected set; get; }
+    /*
+    public MonoBehaviour avatar { get; set; }
+    public string avatarName { get; set; }
+    public int avatarID { get; set; }
+    */
     protected Collider2D m_collider;
 
     public delegate void TypeChanged(Player player, PlaneStyle nextStyle);
@@ -29,6 +34,7 @@ public abstract class PlayerControl : Player
     protected float m_MoveSpeedDefault = 50f; // OnlyChangeInPlaneStyle
     protected float baseCounterForce = 200f;
     protected Vector2 currentVelocity;
+    protected Vector3 startScale;
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -36,12 +42,25 @@ public abstract class PlayerControl : Player
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
-        
+        if (ClippedMoveableArea == null)
+            ClippedMoveableArea = gameObject.AddComponent<EnclosureArea2D>();
     }
 
-    public virtual void OnEnable()
+    protected virtual void OnEnable()
     {
         ApplyStyleParameter();
+        //MyGameEventSystem.Instance.OnUseExtentedPlaneItem += ExtentPlane;
+        MyGameEventSystem.UseExtentedPlaneItemEvent.performed += ExtentPlane;
+        moveableArea.OnChangedBounds += UpdateBounds;
+
+    }
+
+    protected virtual void OnDisable()
+    {
+        //MyGameEventSystem.Instance.OnUseExtentedPlaneItem -= ExtentPlane;
+        MyGameEventSystem.UseExtentedPlaneItemEvent.performed -= ExtentPlane;
+        moveableArea.OnChangedBounds -= UpdateBounds;
+
     }
 
     protected virtual void Reset()
@@ -53,23 +72,30 @@ public abstract class PlayerControl : Player
     protected virtual void ResetTransformExceptPostion()
     {
         transform.rotation = Quaternion.identity;
-        rb.velocity = Vector3.zero;
+        rb.velocity = Vector2.zero;
         rb.angularVelocity = 0;
     }
 
     protected virtual void Start()
     {
+        startScale = transform.localScale;
+
         moveSpeed = m_MoveSpeedDefault;
         //TODO: maybe seperate EnclosureArea2D class
-        if(ClippedMoveableArea == null)
-            ClippedMoveableArea = gameObject.AddComponent<EnclosureArea2D>();
+
         ClippedMoveableArea.UpdateBounds(moveableArea.Center, m_collider.bounds.extents, moveableArea.Extent);
+        
         inputActions = userInput.GetPlayerInputActions();
         //subscribe event
         GameManager.OnResetGame.AddListener(Reset);
 
-        //ApplyPlaneStyleParameter(playerStyle);
+        //ApplyPlaneStyleParameter(playerStyle);    
+    }
 
+    protected void ExtentPlane(GameObject applicant)
+    {
+        if (applicant != this.gameObject) return;
+        transform.localScale = new Vector3(transform.localScale.x, Mathf.Clamp(transform.localScale.y + 0.2f, startScale.y, 9), transform.localScale.z); ;
     }
 
     protected virtual void PrepareMove()
@@ -112,8 +138,10 @@ public abstract class PlayerControl : Player
         Vector2.SmoothDamp(rb.position, nextPosition, ref currentVelocity, Time.deltaTime, m_MoveSpeedDefault, Time.deltaTime);
         rb.velocity = currentVelocity;
     }
-    void UpdateBounds() => ClippedMoveableArea.UpdateBounds(moveableArea.Center, m_collider.bounds.extents, moveableArea.Extent);
-
+    void UpdateBounds()
+    {
+        ClippedMoveableArea.UpdateBounds(moveableArea.Center, m_collider.bounds.extents, moveableArea.Extent);
+    }
 
     public abstract void ApplyStyleParameter();
 }

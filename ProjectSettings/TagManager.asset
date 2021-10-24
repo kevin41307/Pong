@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - ball
+  - BorderLine
+  - Brick
+  - Wall
   layers:
   - Default
   - TransparentFX
@@ -20,7 +23,7 @@ TagManager:
   - Fluid
   - BG
   - GlitchText
-  - 
+  - Ball
   - 
   - 
   - 
